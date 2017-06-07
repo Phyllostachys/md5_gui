@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <cstdio>
+#include <string>
 
 #include <openssl/md5.h>
 
@@ -22,6 +23,20 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+#if defined(MD5_STR)
+    setvbuf(stdout, NULL, _IONBF, 0);
+    std::string inputStr(argv[1]);
+    inputStr += 0xA;
+    unsigned char md5sum[MD5_DIGEST_LENGTH];
+    MD5((const unsigned char *)inputStr.c_str(), inputStr.length(), md5sum);
+    char tempbuf[1024];
+    snprintf(tempbuf, 1024, "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+                md5sum[0],  md5sum[1],  md5sum[2],  md5sum[3],
+                md5sum[4],  md5sum[5],  md5sum[6],  md5sum[7],
+                md5sum[8],  md5sum[9],  md5sum[10], md5sum[11],
+                md5sum[12], md5sum[13], md5sum[14], md5sum[15]);
+    printf("%s\n", tempbuf);
+#else
     filedata filelist[10];
     int idx = 0;
     int max = argc - 1;
@@ -66,6 +81,7 @@ int main(int argc, char **argv) {
         strncat(strbuf, "\n", 1);
     }
     MessageBoxA(nullptr, strbuf, "MD5 Sum", MB_OK);
+#endif
 
     return 0;
 }
